@@ -44,34 +44,34 @@ class EventQueue {
 	}
 
 	public function start(entry:TrackEntry):Void {
-		eventTypes.push(EventType.Start);
+		eventTypes.push(EventType.start);
 		entries.push(entry);
 		animationState.animationsChanged = true;
 	}
 
 	public function interrupt(entry:TrackEntry):Void {
-		eventTypes.push(EventType.Interrupt);
+		eventTypes.push(EventType.interrupt);
 		entries.push(entry);
 	}
 
 	public function end(entry:TrackEntry):Void {
-		eventTypes.push(EventType.End);
+		eventTypes.push(EventType.end);
 		entries.push(entry);
 		animationState.animationsChanged = true;
 	}
 
 	public function dispose(entry:TrackEntry):Void {
-		eventTypes.push(EventType.Dispose);
+		eventTypes.push(EventType.dispose);
 		entries.push(entry);
 	}
 
 	public function complete(entry:TrackEntry):Void {
-		eventTypes.push(EventType.Complete);
+		eventTypes.push(EventType.complete);
 		entries.push(entry);
 	}
 
 	public function event(entry:TrackEntry, event:Event):Void {
-		eventTypes.push(EventType.Event);
+		eventTypes.push(EventType.event);
 		entries.push(entry);
 		events.push(event);
 	}
@@ -85,29 +85,29 @@ class EventQueue {
 			var type:EventType = eventTypes[i];
 			var entry:TrackEntry = entries[i];
 			switch (type) {
-				case EventType.Start:
-					entry.onStart.invoke(entry);
-					animationState.onStart.invoke(entry);
-				case EventType.Interrupt:
-					entry.onInterrupt.invoke(entry);
-					animationState.onInterrupt.invoke(entry);
-				case EventType.End:
-					entry.onEnd.invoke(entry);
-					animationState.onEnd.invoke(entry);
-					entry.onDispose.invoke(entry);
-					animationState.onDispose.invoke(entry);
+				case EventType.start:
+					entry.onStart.invoke1(entry);
+					animationState.onStart.invoke1(entry);
+				case EventType.interrupt:
+					entry.onInterrupt.invoke1(entry);
+					animationState.onInterrupt.invoke1(entry);
+				case EventType.end:
+					entry.onEnd.invoke1(entry);
+					animationState.onEnd.invoke1(entry);
+					entry.onDispose.invoke1(entry);
+					animationState.onDispose.invoke1(entry);
 					animationState.trackEntryPool.free(entry);
-				case EventType.Dispose:
-					entry.onDispose.invoke(entry);
-					animationState.onDispose.invoke(entry);
+				case EventType.dispose:
+					entry.onDispose.invoke1(entry);
+					animationState.onDispose.invoke1(entry);
 					animationState.trackEntryPool.free(entry);
-				case EventType.Complete:
-					entry.onComplete.invoke(entry);
-					animationState.onComplete.invoke(entry);
-				case EventType.Event:
+				case EventType.complete:
+					entry.onComplete.invoke1(entry);
+					animationState.onComplete.invoke1(entry);
+				case EventType.event:
 					var event:Event = events[eventIndex++];
-					entry.onEvent.invoke(entry, event);
-					animationState.onEvent.invoke(entry, event);
+					entry.onEvent.invoke2(entry, event);
+					animationState.onEvent.invoke2(entry, event);
 			}
 		}
 		clear();

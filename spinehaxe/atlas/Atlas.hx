@@ -55,6 +55,7 @@ class Atlas {
 		var page:AtlasPage = null;
 		while (true) {
 			var line:String = reader.readLine();
+
 			if (line == null)
 				break;
 			line = reader.trim(line);
@@ -163,22 +164,22 @@ class Reader {
 	var lines:Array<String>;
 	var index:Int = 0;
 
-	public function new(text:String) {
+	public function new (text:String) {
 		var regex:EReg = new EReg("[ \t]*((\r\n)|\r|\n)[ \t]*", "g");
 		lines = regex.split(text);
 	}
 
-	public function trim(value:String):String {
+	public function trim (value:String):String {
 		return StringTools.trim(value);
 	}
 
-	public function readLine():String {
+	public function readLine ():String {
 		if (index >= lines.length)
 			return null;
 		return lines[index++];
 	}
 
-	public function readValue():String {
+	public function readValue ():String {
 		var line:String = readLine();
 		var colon:Int = line.indexOf(":");
 		if (colon == -1)
@@ -187,7 +188,7 @@ class Reader {
 	}
 
 	/** Returns the number of tuple values read (1, 2 or 4). */
-	public function readTuple(tuple:Array<String>):Int {
+	public function readTuple (tuple:Array<String>):Int {
 		var line:String = readLine();
 		var colon:Int = line.indexOf(":");
 		if (colon == -1)

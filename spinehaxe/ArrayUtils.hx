@@ -17,15 +17,11 @@ class ArrayUtils {
 		setLength(array, 0);
 	}
 
-	public static inline function setLength<T>(array:Array<T>, length:Int, ?fill:T):Void
+	public static inline function setLength<T>(array:Array<T>, length:Int):Void
 	{
 #if flash
 		untyped array.length = length;
 #else
-		while (array.length < length)
-		{
-			array.push(fill);
-		}
 		while (array.length > length)
 		{
 			array.pop();

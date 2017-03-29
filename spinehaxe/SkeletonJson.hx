@@ -275,11 +275,10 @@ class SkeletonJson {
 			attachment.vertices = vertices;
 			return;
 		}
-
 		var weights:Array<Float> = new Array<Float>();
 		var bones:Array<Int> = new Array<Int>();
 		var i = 0, n = vertices.length;
-		/*while (i < n) {
+		while (i < n) {
 			var boneCount:Int = Std.int(vertices[i++]);
 			bones.push(boneCount);
 			var nn:Int = i + boneCount * 4;
@@ -290,7 +289,7 @@ class SkeletonJson {
 				weights.push(vertices[i + 3]);
 				i += 4;
 			}
-		}*/
+		}
 		attachment.bones = bones;
 		attachment.vertices = weights;
 	}
@@ -582,7 +581,7 @@ class SkeletonJson {
 		for (skinName in deformMap.fields()) {
 			var skin:Skin = skeletonData.findSkin(skinName);
 			slotMap = deformMap.getNode(skinName);
-			for (slotName in slotMap.fields()) {
+			for (slotName in slotMap) {
 				slotIndex = skeletonData.findSlotIndex(slotName);
 				var timelineMap:JsonNode = slotMap.getNode(slotName);
 				for (timelineName in timelineMap.fields()) {
@@ -608,13 +607,8 @@ class SkeletonJson {
 							deform = new Array();
 							var start:Int = valueMap.getInt("offset", 0);
 							var temp:Array<Float> = valueMap.getFloatArray("vertices", 1);
-							for (i in 0 ... start)
-								deform[i] = 0;
 							for (i in 0 ... temp.length) {
 								deform[start + i] = temp[i];
-							}
-							for (i in deform.length ... deformLength) {
-								deform[i] = 0;
 							}
 							if (scale != 1) {
 								var n:Int;
@@ -691,7 +685,7 @@ class SkeletonJson {
 				eventTimeline.setFrame(frameIndex++, event);
 			}
 			timelines[timelines.length] = eventTimeline;
-			duration = Math.max(duration, eventTimeline.frames[eventTimeline.frameCount - 1]);
+			duration = Std.int(Math.max(duration, eventTimeline.frames[eventTimeline.frameCount - 1]));
 		}
 
 		skeletonData.animations[skeletonData.animations.length] = new Animation(name, timelines, duration);

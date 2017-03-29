@@ -35,7 +35,6 @@ import spinehaxe.Bone;
 import spinehaxe.Pool;
 import spinehaxe.Event;
 import spinehaxe.Skeleton;
-import spinehaxe.animation.Listeners;
 
 class AnimationState {
 	static var emptyAnimation:Animation = new Animation("<empty>", new Array(), 0);
@@ -48,7 +47,7 @@ class AnimationState {
 	public var onEnd:Listeners = new Listeners();
 	public var onDispose:Listeners = new Listeners();
 	public var onComplete:Listeners = new Listeners();
-	public var onEvent:EventListeners = new EventListeners();
+	public var onEvent:Listeners = new Listeners();
 	var queue:EventQueue;
 	var propertyIDs:Map<String, String> = new Map();
 	@:allow(spinehaxe) var animationsChanged:Bool;
@@ -157,7 +156,7 @@ class AnimationState {
 					timelines[ii].apply(skeleton, animationLast, animationTime, events, 1, true, false);
 			} else {
 				var firstFrame:Bool = current.timelinesRotation.length == 0;
-				if (firstFrame) ArrayUtils.setLength(current.timelinesRotation, timelineCount << 1, 0);
+				if (firstFrame) ArrayUtils.setLength(current.timelinesRotation, timelineCount << 1);
 				var timelinesRotation:Array<Float> = current.timelinesRotation;
 
 				var timelinesFirst:Array<Bool> = current.timelinesFirst;
@@ -199,7 +198,7 @@ class AnimationState {
 		var alpha:Float = _from.alpha * entry.mixAlpha * (1 - mix);
 
 		var firstFrame:Bool = _from.timelinesRotation.length == 0;
-		if (firstFrame) ArrayUtils.setLength(_from.timelinesRotation, timelineCount << 1, 0);
+		if (firstFrame) ArrayUtils.setLength(_from.timelinesRotation, timelineCount << 1);
 		var timelinesRotation:Array<Float> = _from.timelinesRotation;
 
 		for (i in 0 ... timelineCount) {
@@ -257,7 +256,7 @@ class AnimationState {
 
 		// Mix between rotations using the direction of the shortest route on the first frame while detecting crosses.
 		var r1:Float = setupPose ? bone.data.rotation : bone.rotation;
-		var total:Float = 0, diff:Float = r2 - r1;
+		var total:Float, diff:Float = r2 - r1;
 		if (diff == 0) {
 			if (firstFrame) {
 				timelinesRotation[i] = 0;
@@ -290,7 +289,7 @@ class AnimationState {
 		bone.rotation = r1 - (16384 - Std.int((16384.499999999996 - r1 / 360))) * 360;
 	}
 
-	function queueEvents(entry:TrackEntry, animationTime:Float):Void {
+	function queueEvents (entry:TrackEntry, animationTime:Float):Void {
 		var animationStart:Float = entry.animationStart, animationEnd:Float = entry.animationEnd;
 		var duration:Float = animationEnd - animationStart;
 		var trackLastWrapped:Float = entry.trackLast % duration;
@@ -302,10 +301,7 @@ class AnimationState {
 		while (i < n) {
 			event = events[i];
 			if (event.time < trackLastWrapped) break;
-			if (event.time > animationEnd) {
-				i++;
-				continue; // Discard events outside animation start/end.
-			}
+			if (event.time > animationEnd) continue; // Discard events outside animation start/end.
 			queue.event(entry, event);
 			i++;
 		}
@@ -319,17 +315,14 @@ class AnimationState {
 		// Queue events after complete.
 		while (i < n) {
 			event = events[i];
-			if (event.time < animationStart) {
-				i++;
-				continue; // Discard events outside animation start/end.
-			}
+			if (event.time < animationStart) continue; // Discard events outside animation start/end.
 			queue.event(entry, events[i]);
 			i++;
 		}
 		ArrayUtils.clearArray(events);
 	}
 
-	public function clearTracks():Void {
+	public function clearTracks ():Void {
 		queue.drainDisabled = true;
 		for (i in 0 ... tracks.length)
 			clearTrack(i);
@@ -338,7 +331,7 @@ class AnimationState {
 		queue.drain();
 	}
 
-	public function clearTrack(trackIndex:Int):Void {
+	public function clearTrack (trackIndex:Int):Void {
 		if (trackIndex >= tracks.length) return;
 		var current:TrackEntry = tracks[trackIndex];
 		if (current == null) return;
@@ -362,7 +355,7 @@ class AnimationState {
 	}
 
 
-	function setCurrent(index:Int, current:TrackEntry):Void {
+	function setCurrent (index:Int, current:TrackEntry):Void {
 		var _from:TrackEntry = expandToIndex(index);
 		tracks[index] = current;
 
@@ -380,13 +373,13 @@ class AnimationState {
 		queue.start(current);
 	}
 
-	public function setAnimationByName(trackIndex:Int, animationName:String, loop:Bool):TrackEntry {
+	public function setAnimationByName (trackIndex:Int, animationName:String, loop:Bool):TrackEntry {
 		var animation:Animation = data.skeletonData.findAnimation(animationName);
 		if (animation == null) throw "Animation not found: " + animationName;
 		return setAnimation(trackIndex, animation, loop);
 	}
 
-	public function setAnimation(trackIndex:Int, animation:Animation, loop:Bool):TrackEntry {
+	public function setAnimation (trackIndex:Int, animation:Animation, loop:Bool):TrackEntry {
 		if (animation == null) throw "animation cannot be null.";
 		var current:TrackEntry = expandToIndex(trackIndex);
 		if (current != null) {
@@ -406,13 +399,13 @@ class AnimationState {
 		return entry;
 	}
 
-	public function addAnimationByName(trackIndex:Int, animationName:String, loop:Bool, delay:Float):TrackEntry {
+	public function addAnimationByName (trackIndex:Int, animationName:String, loop:Bool, delay:Float):TrackEntry {
 		var animation:Animation = data.skeletonData.findAnimation(animationName);
 		if (animation == null) throw "Animation not found: " + animationName;
 		return addAnimation(trackIndex, animation, loop, delay);
 	}
 
-	public function addAnimation(trackIndex:Int, animation:Animation, loop:Bool, delay:Float):TrackEntry {
+	public function addAnimation (trackIndex:Int, animation:Animation, loop:Bool, delay:Float):TrackEntry {
 		if (animation == null) throw "animation cannot be null.";
 
 		var last:TrackEntry = expandToIndex(trackIndex);
@@ -441,14 +434,14 @@ class AnimationState {
 		return entry;
 	}
 
-	public function setEmptyAnimation(trackIndex:Int, mixDuration:Float):TrackEntry {
+	public function setEmptyAnimation (trackIndex:Int, mixDuration:Float):TrackEntry {
 		var entry:TrackEntry = setAnimation(trackIndex, emptyAnimation, false);
 		entry.mixDuration = mixDuration;
 		entry.trackEnd = mixDuration;
 		return entry;
 	}
 
-	public function addEmptyAnimation(trackIndex:Int, mixDuration:Float, delay:Float):TrackEntry {
+	public function addEmptyAnimation (trackIndex:Int, mixDuration:Float, delay:Float):TrackEntry {
 		if (delay <= 0) delay -= mixDuration;
 		var entry:TrackEntry = addAnimation(trackIndex, emptyAnimation, false, delay);
 		entry.mixDuration = mixDuration;
@@ -456,7 +449,7 @@ class AnimationState {
 		return entry;
 	}
 
-	public function setEmptyAnimations(mixDuration:Float):Void {
+	public function setEmptyAnimations (mixDuration:Float):Void {
 		queue.drainDisabled = true;
 		for (i in 0 ... tracks.length) {
 			var current:TrackEntry = tracks[i];
@@ -466,7 +459,7 @@ class AnimationState {
 		queue.drain();
 	}
 
-	function expandToIndex(index:Int):TrackEntry {
+	function expandToIndex (index:Int):TrackEntry {
 		if (index < tracks.length) return tracks[index];
 		ArrayUtils.setLength(tracks, index + 1);
 		return null;
@@ -501,7 +494,7 @@ class AnimationState {
 		return entry;
 	}
 
-	function disposeNext(entry:TrackEntry):Void{
+	function disposeNext (entry:TrackEntry):Void{
 		var next:TrackEntry = entry.next;
 		while (next != null) {
 			queue.dispose(next);
@@ -510,7 +503,7 @@ class AnimationState {
 		entry.next = null;
 	}
 
-	function _animationsChanged():Void {
+	function _animationsChanged ():Void {
 		animationsChanged = false;
 
 		var propertyIDs:Map<String, String> = this.propertyIDs = new Map();
@@ -537,7 +530,7 @@ class AnimationState {
 		}
 	}
 
-	function setTimelinesFirst(entry:TrackEntry):Void {
+	function setTimelinesFirst (entry:TrackEntry):Void {
 		if (entry.mixingFrom != null) {
 			setTimelinesFirst(entry.mixingFrom);
 			checkTimelinesUsage(entry, entry.timelinesFirst);
@@ -547,7 +540,7 @@ class AnimationState {
 		var timelines:Array<Timeline> = entry.animation.timelines;
 		var n:Int = timelines.length;
 		var usage:Array<Bool> = entry.timelinesFirst;
-		ArrayUtils.setLength(usage, n, false);
+		ArrayUtils.setLength(usage, n);
 		for (i in 0 ... n) {
 			var id:String = Std.string(timelines[i].getPropertyId());
 			propertyIDs[id] = id;
@@ -555,17 +548,17 @@ class AnimationState {
 		}
 	}
 
-	function checkTimelinesFirst(entry:TrackEntry):Void {
+	function checkTimelinesFirst (entry:TrackEntry):Void {
 		if (entry.mixingFrom != null) checkTimelinesFirst(entry.mixingFrom);
 		checkTimelinesUsage(entry, entry.timelinesFirst);
 	}
 
-	function checkTimelinesUsage(entry:TrackEntry, usageArray:Array<Bool>):Void {
+	function checkTimelinesUsage (entry:TrackEntry, usageArray:Array<Bool>):Void {
 		var propertyIDs:Map<String, String> = this.propertyIDs;
 		var timelines:Array<Timeline> = entry.animation.timelines;
 		var n:Int = timelines.length;
 		var usage:Array<Bool> = usageArray;
-		ArrayUtils.setLength(usageArray, n, false);
+		ArrayUtils.setLength(usageArray, n);
 		for (i in 0 ... n) {
 			var id:String = Std.string(timelines[i].getPropertyId());
 			usage[i] = !propertyIDs.exists(id);
@@ -573,12 +566,12 @@ class AnimationState {
 		}
 	}
 
-	public function getCurrent(trackIndex:Int):TrackEntry {
+	public function getCurrent (trackIndex:Int):TrackEntry {
 		if (trackIndex >= tracks.length) return null;
 		return tracks[trackIndex];
 	}
 
-	public function clearListeners():Void {
+	public function clearListeners ():Void {
 		ArrayUtils.clearArray(onStart._listeners);
 		ArrayUtils.clearArray(onInterrupt._listeners);
 		ArrayUtils.clearArray(onEnd._listeners);

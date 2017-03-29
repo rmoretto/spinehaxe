@@ -31,13 +31,15 @@ package spinehaxe.animation;
 import spinehaxe.Exception;
 using Lambda;
 
-class BaseListeners<F> {
-	@:allow(spinehaxe.animation)
-	var _listeners:Array<F> = new Array();
+typedef Function = Dynamic;
+
+class Listeners {
+	@:allow(spinehaxe.animation.AnimationState)
+	var _listeners:Array<Function> = new Array();
 
 	public function new() {}
 
-	public function add(listener:F):Void {
+	public function add(listener:Function):Void {
 		if (listener == null)
 			throw new IllegalArgumentException("listener cannot be null.");
 		var indexOf:Int = _listeners.indexOf(listener);
@@ -45,26 +47,20 @@ class BaseListeners<F> {
 			_listeners.push(listener);
 	}
 
-	public function remove(listener:F):Void {
+	public function remove(listener:Function):Void {
 		if (listener == null)
 			throw new IllegalArgumentException("listener cannot be null.");
 		var indexOf:Int = _listeners.indexOf(listener);
 		if (indexOf != -1)
 			_listeners.splice(indexOf, 1);
 	}
-}
 
-class Listeners extends BaseListeners<TrackEntry->Void>
-{
-	public function invoke(entry:TrackEntry) {
+	public function invoke1(entry:TrackEntry) {
 		for (listener in _listeners)
 			listener(entry);
 	}
-}
 
-class EventListeners extends BaseListeners<TrackEntry->Event->Void>
-{
-	public function invoke(entry:TrackEntry, event:Event) {
+	public function invoke2(entry:TrackEntry, event:Event) {
 		for (listener in _listeners)
 			listener(entry, event);
 	}

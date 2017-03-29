@@ -68,8 +68,12 @@ class AtlasAttachmentLoader implements AttachmentLoader {
 			throw "Region not found in atlas: " + path + " (mesh attachment: " + name + ")";
 		var attachment:MeshAttachment = new MeshAttachment(name);
 		attachment.rendererObject = region;
-		var scaleX:Float = region.page.width / nextPOT(region.page.width);
-		var scaleY:Float = region.page.height / nextPOT(region.page.height);
+//		var scaleX:Float = region.page.width / nextPOT(region.page.width);
+//		var scaleY:Float = region.page.height / nextPOT(region.page.height);
+
+		var scaleX:Float = 1;
+		var scaleY:Float = 1;
+
 		attachment.regionU = region.u * scaleX;
 		attachment.regionV = region.v * scaleY;
 		attachment.regionU2 = region.u2 * scaleX;
@@ -92,7 +96,7 @@ class AtlasAttachmentLoader implements AttachmentLoader {
 		return new PathAttachment(name);
 	}
 
-	static public function nextPOT(value:Int):Int {
+	static public function nextPOT (value:Int):Int {
 		value--;
 		value |= value >> 1;
 		value |= value >> 2;
